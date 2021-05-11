@@ -376,7 +376,7 @@ func stringifyIntSliceFlag(f *IntSliceFlag) string {
 		}
 	}
 
-	return stringifySliceFlag(f.Usage, f.Names(), defaultVals)
+	return stringifySliceFlag(f.Usage, f.Names(), defaultVals, f.Placeholder)
 }
 
 func stringifyInt64SliceFlag(f *Int64SliceFlag) string {
@@ -387,7 +387,7 @@ func stringifyInt64SliceFlag(f *Int64SliceFlag) string {
 		}
 	}
 
-	return stringifySliceFlag(f.Usage, f.Names(), defaultVals)
+	return stringifySliceFlag(f.Usage, f.Names(), defaultVals, f.Placeholder)
 }
 
 func stringifyFloat64SliceFlag(f *Float64SliceFlag) string {
@@ -399,7 +399,7 @@ func stringifyFloat64SliceFlag(f *Float64SliceFlag) string {
 		}
 	}
 
-	return stringifySliceFlag(f.Usage, f.Names(), defaultVals)
+	return stringifySliceFlag(f.Usage, f.Names(), defaultVals, f.Placeholder)
 }
 
 func stringifyStringSliceFlag(f *StringSliceFlag) string {
