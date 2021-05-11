@@ -82,6 +82,7 @@ type StringSliceFlag struct {
 	DefaultText string
 	HasBeenSet  bool
 	Destination *StringSlice
+	Placeholder string
 }
 
 // IsSet returns whether or not the flag has been set through env or file

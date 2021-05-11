@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-const defaultPlaceholder = "value"
+const defaultPlaceholder = "VALUE"
 
 var (
 	slPfx = fmt.Sprintf("sl:::%d:::", time.Now().UTC().UnixNano())
@@ -355,6 +355,10 @@ func stringifyFlag(f Flag) string {
 	}
 
 	if needsPlaceholder && placeholder == "" {
+		placeholder = fv.FieldByName("Placeholder").String()
+	}
+
+	if needsPlaceholder && placeholder == "" {
 		placeholder = defaultPlaceholder
 	}
 
@@ -408,11 +412,15 @@ func stringifyStringSliceFlag(f *StringSliceFlag) string {
 		}
 	}
 
-	return stringifySliceFlag(f.Usage, f.Names(), defaultVals)
+	return stringifySliceFlag(f.Usage, f.Names(), defaultVals, f.Placeholder)
 }
 
-func stringifySliceFlag(usage string, names, defaultVals []string) string {
+func stringifySliceFlag(usage string, names, defaultVals []string, plchldr string) string {
 	placeholder, usage := unquoteUsage(usage)
+
+	if  placeholder == "" {
+		placeholder = plchldr
+	}
 	if placeholder == "" {
 		placeholder = defaultPlaceholder
 	}
