@@ -50,6 +50,27 @@ var HelpFlag Flag = &BoolFlag{
 // to display a flag.
 var FlagStringer FlagStringFunc = stringifyFlag
 
+var FlagsStringer = func(flags []Flag) []string {
+	strs:=make([][2]string, len(flags))
+	maxTabPos := 0
+	for i, f := range flags {
+		str:=FlagStringer(f)
+		tabPos := strings.Index(str, "\t")
+		if tabPos > maxTabPos {
+			maxTabPos=tabPos
+		}
+		strs[i]=[2]string{str[:tabPos],str[tabPos+1:]}
+	}
+	final:=make([]string, len(flags))
+	for i, s := range strs {
+		offs := maxTabPos+2
+		str := s[0]+strings.Repeat(" ", offs-len(s[0]))
+			str+=wrap(s[1], offs+2, HelpWrapAt)
+		final[i] = str
+	}
+	return final
+}
+
 // Serializer is used to circumvent the limitations of flag.FlagSet.Set
 type Serializer interface {
 	Serialize() string
@@ -451,6 +472,9 @@ func stringifyChoiceFlag(f *ChoiceFlag) string {
 		defaultValueString = fmt.Sprintf(formatDefault("%q"), f.Choice.ToString(v))
 	}
 
+	if  placeholder == "" {
+		placeholder = f.Placeholder
+	}
 	if placeholder == "" {
 		placeholder = defaultPlaceholder
 	}
