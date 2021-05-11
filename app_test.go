@@ -2253,3 +2253,96 @@ func TestSetupInitializesOnlyNilWriters(t *testing.T) {
 		t.Errorf("expected a.Writer to be os.Stdout")
 	}
 }
+
+func TestApp_PreventDefaultPrint_When_BoolFlag(t *testing.T) {
+	var actualOutput bytes.Buffer
+
+	expectedOutput := `NAME:
+   greet - fight the loneliness!
+
+USAGE:
+   cli.test [global options] command [command options] [arguments...]
+
+COMMANDS:
+   help, h  Shows a list of commands or help for one command
+
+GLOBAL OPTIONS:
+   --verbose, -v  Increase verbosity
+   --extract, -e  Extract only, do not execute the service
+   --keep, -k     Do not delete the temp dir after execution (default: false)
+   --help, -h     show help (default: false)
+`
+
+	app := App{
+		Name:   "greet",
+		Usage:  "fight the loneliness!",
+		Writer: &actualOutput,
+		Flags: []Flag{
+			&BoolFlag{
+				Name:             "verbose",
+				Aliases:          []string{"v"},
+				Usage:            "Increase verbosity",
+				HideDefaultValue: true,
+				DefaultText:      "default text",
+			},
+			&BoolFlag{
+				Name:             "extract",
+				Aliases:          []string{"e"},
+				Usage:            "Extract only, do not execute the service",
+				HideDefaultValue: true,
+			},
+			&BoolFlag{
+				Name:    "keep",
+				Aliases: []string{"k"},
+				Usage:   " Do not delete the temp dir after execution",
+			},
+		},
+
+		Action: func(c *Context) error {
+			return nil
+		},
+	}
+
+	err := app.Run([]string{"", "-h"})
+	if err != nil {
+		t.Errorf("Run returned unexpected error: %v", err)
+	}
+
+	actualOutputLines := strings.Split(actualOutput.String(), "\n")
+	expectedOutputLines := strings.Split(expectedOutput, "\n")
+
+	if !equal(actualOutputLines, expectedOutputLines, t) {
+		t.Errorf("Actual output does not match with expected output")
+	}
+
+	/*
+		OUTPUT :
+			NAME:
+			greet - fight the loneliness!
+
+			USAGE:
+			cli.test [global options] command [command options] [arguments...]
+
+			COMMANDS:
+			help, h  Shows a list of commands or help for one command
+
+			GLOBAL OPTIONS:
+			--verbose, -v  Increase verbosity
+			--extract, -e  Extract only, do not execute the service
+			--keep, -k     Do not delete the temp dir after execution (default: false)
+			--help, -h     show help (default: false)
+	*/
+}
+
+func equal(actualOutputLines, expectedOutputLines []string, t *testing.T) bool {
+	if len(actualOutputLines) != len(expectedOutputLines) {
+		t.Errorf("Length mismatch when run TestApp_PreventDefaultPrint_When_BoolFlag")
+		return false
+	}
+	for i, line := range actualOutputLines {
+		if line != expectedOutputLines[i] {
+			return false
+		}
+	}
+	return true
+}

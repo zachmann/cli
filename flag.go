@@ -321,9 +321,18 @@ func stringifyFlag(f Flag) string {
 	needsPlaceholder := false
 	defaultValueString := ""
 	val := fv.FieldByName("Value")
+	hideDefaultValue := false
+
+	if boolFlag, ok := f.(*BoolFlag); ok {
+		hideDefaultValue = boolFlag.HideDefaultValue
+	}
+
 	if val.IsValid() {
 		needsPlaceholder = val.Kind() != reflect.Bool
 		defaultValueString = fmt.Sprintf(formatDefault("%v"), val.Interface())
+		if hideDefaultValue {
+			defaultValueString = ""
+		}
 
 		if val.Kind() == reflect.String && val.String() != "" {
 			defaultValueString = fmt.Sprintf(formatDefault("%q"), val.String())
@@ -334,6 +343,9 @@ func stringifyFlag(f Flag) string {
 	if helpText.IsValid() && helpText.String() != "" {
 		needsPlaceholder = val.Kind() != reflect.Bool
 		defaultValueString = fmt.Sprintf(formatDefault("%s"), helpText.String())
+		if hideDefaultValue {
+			defaultValueString = ""
+		}
 	}
 
 	if defaultValueString == formatDefault("") {
