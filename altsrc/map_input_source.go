@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/urfave/cli/v2"
+	"github.com/zachmann/cli/v2"
 )
 
 // MapInputSource implements InputSourceContext to return
