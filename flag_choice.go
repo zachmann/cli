@@ -103,6 +103,7 @@ type ChoiceFlag struct {
 	Required    bool
 	Destination interface{}
 	HasBeenSet  bool
+	Placeholder string
 }
 
 // String Describes the Flag to the caller.
