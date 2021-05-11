@@ -72,6 +72,7 @@ type TimestampFlag struct {
 	DefaultText string
 	HasBeenSet  bool
 	Destination *Timestamp
+	Placeholder string
 }
 
 // IsSet returns whether or not the flag has been set through env or file

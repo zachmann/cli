@@ -86,6 +86,7 @@ type Int64SliceFlag struct {
 	Value       *Int64Slice
 	DefaultText string
 	HasBeenSet  bool
+	Placeholder string
 }
 
 // IsSet returns whether or not the flag has been set through env or file

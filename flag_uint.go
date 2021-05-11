@@ -19,6 +19,7 @@ type UintFlag struct {
 	DefaultText string
 	Destination *uint
 	HasBeenSet  bool
+	Placeholder string
 }
 
 // IsSet returns whether or not the flag has been set through env or file

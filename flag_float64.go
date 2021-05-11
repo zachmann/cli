@@ -19,6 +19,7 @@ type Float64Flag struct {
 	DefaultText string
 	Destination *float64
 	HasBeenSet  bool
+	Placeholder string
 }
 
 // IsSet returns whether or not the flag has been set through env or file
