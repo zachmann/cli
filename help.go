@@ -56,6 +56,9 @@ type helpPrinterCustom func(w io.Writer, templ string, data interface{}, customF
 // to capture the extra information.
 var HelpPrinter helpPrinter = printHelp
 
+var HelpWrapAt = 80
+var HelpWrap = false
+
 // HelpPrinterCustom is a function that writes the help output. It is used as
 // the default implementation of HelpPrinter, and may be called directly if
 // the ExtraInfo field is set on an App.
@@ -281,19 +284,9 @@ func printHelpCustom(out io.Writer, templ string, data interface{}, customFuncs 
 		"indent":  indent,
 		"nindent": nindent,
 		"trim":    strings.TrimSpace,
-		"wrap":    func(input string, offset int) string { return wrap(input, offset, maxLineLength) },
+		"wrap":    func(input string, offset int) string { return wrap(input, offset, HelpWrapAt) },
+		"wrapFlags":    FlagsStringer,
 		"offset":  offset,
-	}
-
-	if customFuncs["wrapAt"] != nil {
-		if wa, ok := customFuncs["wrapAt"]; ok {
-			if waf, ok := wa.(func() int); ok {
-				wrapAt := waf()
-				customFuncs["wrap"] = func(input string, offset int) string {
-					return wrap(input, offset, wrapAt)
-				}
-			}
-		}
 	}
 
 	for key, value := range customFuncs {
@@ -405,6 +398,22 @@ func indent(spaces int, v string) string {
 
 func nindent(spaces int, v string) string {
 	return "\n" + indent(spaces, v)
+}
+
+func wrapAtTab(input string, wrapAt int) string {
+	fmt.Println("--------------------")
+	fmt.Println("wrapAtTab Debug")
+	i := strings.Index(input, "\t")
+	if i<0 {
+		return input
+	}
+	fmt.Printf("Tab at %d\n", i)
+	key := strings.TrimSpace(input[i:])
+	fmt.Printf("Wrap at str %s\n", key)
+	offset := strings.Index(input, key)
+	fmt.Printf("offset %d\n", offset)
+	fmt.Println("--------------------")
+	return wrap(input, offset+4, wrapAt)
 }
 
 func wrap(input string, offset int, wrapAt int) string {

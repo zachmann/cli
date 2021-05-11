@@ -48,8 +48,8 @@ DESCRIPTION:
    {{wrap .Description 3}}{{end}}{{if .VisibleFlags}}
 
 OPTIONS:
-   {{range .VisibleFlags}}{{.}}
-   {{end}}{{end}}
+{{range wrapFlags .VisibleFlags}}{{indent 3 .}}
+{{end}}{{end}}
 `
 
 // SubcommandHelpTemplate is the text template for the subcommand help topic.
@@ -70,8 +70,8 @@ COMMANDS:{{range .VisibleCategories}}{{if .Name}}
    {{join .Names ", "}}{{"\t"}}{{.Usage}}{{end}}{{end}}{{end}}{{if .VisibleFlags}}
 
 OPTIONS:
-   {{range .VisibleFlags}}{{.}}
-   {{end}}{{end}}
+{{range wrapFlags .VisibleFlags}}{{indent 3 .}}
+{{end}}{{end}}
 `
 
 var MarkdownDocTemplate = `% {{ .App.Name }} {{ .SectionNum }}
