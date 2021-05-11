@@ -355,7 +355,9 @@ func stringifyFlag(f Flag) string {
 	}
 
 	if needsPlaceholder && placeholder == "" {
-		placeholder = fv.FieldByName("Placeholder").String()
+		if pl := fv.FieldByName("Placeholder"); pl.IsValid() {
+			placeholder = pl.String()
+		}
 	}
 
 	if needsPlaceholder && placeholder == "" {
