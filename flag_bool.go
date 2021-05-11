@@ -20,7 +20,7 @@ type BoolFlag struct {
 	Destination      *bool
 	HasBeenSet       bool
 	HideDefaultValue bool
-	Placeholder string
+	Placeholder 	 string
 }
 
 // IsSet returns whether or not the flag has been set through env or file
