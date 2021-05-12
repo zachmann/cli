@@ -50,11 +50,12 @@ var HelpFlag Flag = &BoolFlag{
 // to display a flag.
 var FlagStringer FlagStringFunc = stringifyFlag
 
-var FlagsStringer = func(flags []Flag) []string {
+var FlagsStringer = func(flags []Flag, indent int) []string {
 	strs:=make([][2]string, len(flags))
 	maxTabPos := 0
+	indentStr := strings.Repeat(" ", indent)
 	for i, f := range flags {
-		str:=FlagStringer(f)
+		str := indentStr + FlagStringer(f)
 		tabPos := strings.Index(str, "\t")
 		if tabPos > maxTabPos {
 			maxTabPos=tabPos
