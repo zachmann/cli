@@ -48,7 +48,7 @@ DESCRIPTION:
    {{wrap .Description 3}}{{end}}{{if .VisibleFlags}}
 
 OPTIONS:
-{{range wrapFlags .VisibleFlags}}{{indent 3 .}}
+{{range wrapFlags (.VisibleFlags) 3}}{{.}}
 {{end}}{{end}}
 `
 
@@ -70,7 +70,7 @@ COMMANDS:{{range .VisibleCategories}}{{if .Name}}
    {{join .Names ", "}}{{"\t"}}{{.Usage}}{{end}}{{end}}{{end}}{{if .VisibleFlags}}
 
 OPTIONS:
-{{range wrapFlags .VisibleFlags}}{{indent 3 .}}
+{{range wrapFlags (.VisibleFlags) 3}}{{.}}
 {{end}}{{end}}
 `
 

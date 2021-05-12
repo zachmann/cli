@@ -298,7 +298,7 @@ func printHelpCustom(out io.Writer, templ string, data interface{}, customFuncs 
 		// If the writer is closed, t.Execute will fail, and there's nothing
 		// we can do to recover.
 		if os.Getenv("CLI_TEMPLATE_ERROR_DEBUG") != "" {
-			_, _ = fmt.Fprintf(ErrWriter, "CLI TEMPLATE ERROR: %#v\n", err)
+			_, _ = fmt.Fprintf(ErrWriter, "CLI TEMPLATE ERROR: %s\n", err.Error())
 		}
 		return
 	}
