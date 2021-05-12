@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 var errParse = errors.New("parse error")
@@ -80,6 +81,14 @@ func (c *defaultChoice) FromString(s string) interface{} {
 }
 
 func (c *defaultChoice) ToString(v interface{}) string {
+	rV := reflect.ValueOf(v)
+	if rV.Kind() == reflect.Slice {
+		vv := make([]string, rV.Len())
+		for i:=0;i<rV.Len();i++ {
+			vv[i]=c.ToString(rV.Index(i).Interface())
+		}
+		return strings.Join(vv, ",")
+	}
 	if v, ok := c.sMap[v]; ok {
 		return v
 	}
@@ -101,6 +110,7 @@ type ChoiceFlag struct {
 	Usage       string
 	DefaultText string
 	Required    bool
+	Hidden      bool
 	Destination interface{}
 	HasBeenSet  bool
 	Placeholder string
@@ -143,7 +153,7 @@ func (f *ChoiceFlag) Apply(set *flag.FlagSet) error {
 
 // Names Returns all flag names of this cli.Flag.
 func (f *ChoiceFlag) Names() []string {
-	return append(f.Aliases, f.Name)
+	return flagNames(f.Name, f.Aliases)
 }
 
 // IsSet Whether this cli.Flag has been set or not.
@@ -169,6 +179,11 @@ func (f *ChoiceFlag) GetUsage() string {
 // GetValue Returns the current value of this cli.Flag.
 func (f *ChoiceFlag) GetValue() string {
 	return f.Choice.ToString(f.Value)
+}
+
+// IsVisible returns true if the flag is not hidden, otherwise false
+func (f *ChoiceFlag) IsVisible() bool {
+	return !f.Hidden
 }
 
 // Choice looks up the value of a local ChoiceFlag.
@@ -261,7 +276,11 @@ func interfaceOf(v reflect.Value) interface{} {
 func setValue(v reflect.Value, val interface{}) {
 	switch v.Kind() {
 	case reflect.Interface, reflect.Ptr:
-		v.Elem().Set(reflect.ValueOf(val))
+		if v.Elem().Kind() == reflect.Slice {
+			v.Elem().Set(reflect.Append(v.Elem(), reflect.ValueOf(val))	)
+		} else {
+			v.Elem().Set(reflect.ValueOf(val))
+		}
 	default:
 		v.Set(reflect.ValueOf(val))
 	}
