@@ -276,8 +276,6 @@ func ShowCommandCompletions(ctx *Context, command string) {
 // allow using arbitrary functions in template rendering.
 func printHelpCustom(out io.Writer, templ string, data interface{}, customFuncs map[string]interface{}) {
 
-	const maxLineLength = 10000
-
 	funcMap := template.FuncMap{
 		"join":    strings.Join,
 		"indent":  indent,
