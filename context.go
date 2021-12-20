@@ -73,17 +73,6 @@ func (c *Context) IsSet(name string) bool {
 	return false
 }
 
-// IsSet determines if the flag was actually set in this and all parent contexts
-func (c *Context) IsSetDeep(name string) bool {
-	if c.IsSet(name) {
-		return true
-	}
-	if c.parentContext != nil {
-		return c.parentContext.IsSetDeep(name)
-	}
-	return false
-}
-
 // LocalFlagNames returns a slice of flag names used in this context.
 func (c *Context) LocalFlagNames() []string {
 	var names []string
