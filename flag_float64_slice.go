@@ -166,18 +166,19 @@ func (f *Float64SliceFlag) Apply(set *flag.FlagSet) error {
 // Float64Slice looks up the value of a local Float64SliceFlag, returns
 // nil if not found
 func (c *Context) Float64Slice(name string) []float64 {
-	if fs := c.lookupFlagSet(name); fs != nil {
-		return lookupFloat64Slice(name, fs)
+	for _, ctx := range c.Lineage() {
+		if fs := ctx.lookupFlagSet(name); fs != nil {
+			if f := flagSetLookupWithValueSet(fs, name); f != nil {
+				return lookupFloat64Slice(f)
+			}
+		}
 	}
 	return nil
 }
 
-func lookupFloat64Slice(name string, set *flag.FlagSet) []float64 {
-	f := set.Lookup(name)
-	if f != nil {
-		if slice, ok := f.Value.(*Float64Slice); ok {
-			return slice.Value()
-		}
+func lookupFloat64Slice(f *flag.Flag) []float64 {
+	if slice, ok := f.Value.(*Float64Slice); ok {
+		return slice.Value()
 	}
 	return nil
 }

@@ -177,18 +177,19 @@ func (f *StringSliceFlag) Apply(set *flag.FlagSet) error {
 // StringSlice looks up the value of a local StringSliceFlag, returns
 // nil if not found
 func (c *Context) StringSlice(name string) []string {
-	if fs := c.lookupFlagSet(name); fs != nil {
-		return lookupStringSlice(name, fs)
+	for _, ctx := range c.Lineage() {
+		if fs := ctx.lookupFlagSet(name); fs != nil {
+			if f := flagSetLookupWithValueSet(fs, name); f != nil {
+				return lookupStringSlice(f)
+			}
+		}
 	}
 	return nil
 }
 
-func lookupStringSlice(name string, set *flag.FlagSet) []string {
-	f := set.Lookup(name)
-	if f != nil {
-		if slice, ok := f.Value.(*StringSlice); ok {
-			return slice.Value()
-		}
+func lookupStringSlice(f *flag.Flag) []string {
+	if slice, ok := f.Value.(*StringSlice); ok {
+		return slice.Value()
 	}
 	return nil
 }

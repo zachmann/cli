@@ -51,23 +51,40 @@ func (c *Context) Set(name, value string) error {
 
 // IsSet determines if the flag was actually set
 func (c *Context) IsSet(name string) bool {
-	if fs := c.lookupFlagSet(name); fs != nil {
-		isSet := false
-		fs.Visit(func(f *flag.Flag) {
-			if f.Name == name {
-				isSet = true
+	for _, ctx := range c.Lineage() {
+		if ctx.Command == nil {
+			continue
+		}
+
+		for _, f := range ctx.Command.Flags {
+			if !f.IsSet() {
+				continue
 			}
-		})
-		if isSet {
+			for _, n := range f.Names() {
+				if n == name {
+					return true
+				}
+			}
+		}
+		if flagSetLookupWithValueSet(ctx.flagSet, name) != nil {
 			return true
 		}
+	}
 
-		f := c.lookupFlag(name)
-		if f == nil {
-			return false
+	if c.App != nil {
+		for _, f := range c.App.Flags {
+			if !f.IsSet() {
+				continue
+			}
+			for _, n := range f.Names() {
+				if n == name {
+					return true
+				}
+			}
 		}
-
-		return f.IsSet()
+		if flagSetLookupWithValueSet(c.flagSet, name) != nil {
+			return true
+		}
 	}
 
 	return false
@@ -104,8 +121,12 @@ func (c *Context) Lineage() []*Context {
 
 // Value returns the value of the flag corresponding to `name`
 func (c *Context) Value(name string) interface{} {
-	if fs := c.lookupFlagSet(name); fs != nil {
-		return fs.Lookup(name).Value.(flag.Getter).Get()
+	for _, ctx := range c.Lineage() {
+		if fs := ctx.lookupFlagSet(name); fs != nil {
+			if f := flagSetLookupWithValueSet(fs, name); f != nil {
+				return f.Value.(flag.Getter).Get()
+			}
+		}
 	}
 	return nil
 }
@@ -121,34 +142,6 @@ func (c *Context) NArg() int {
 	return c.Args().Len()
 }
 
-func (ctx *Context) lookupFlag(name string) Flag {
-	for _, c := range ctx.Lineage() {
-		if c.Command == nil {
-			continue
-		}
-
-		for _, f := range c.Command.Flags {
-			for _, n := range f.Names() {
-				if n == name {
-					return f
-				}
-			}
-		}
-	}
-
-	if ctx.App != nil {
-		for _, f := range ctx.App.Flags {
-			for _, n := range f.Names() {
-				if n == name {
-					return f
-				}
-			}
-		}
-	}
-
-	return nil
-}
-
 func (ctx *Context) lookupFlagSet(name string) *flag.FlagSet {
 	for _, c := range ctx.Lineage() {
 		if f := c.flagSet.Lookup(name); f != nil {
@@ -157,6 +150,16 @@ func (ctx *Context) lookupFlagSet(name string) *flag.FlagSet {
 	}
 
 	return nil
+}
+
+func flagSetLookupWithValueSet(fs *flag.FlagSet, name string) (f *flag.Flag) {
+	fs.Visit(
+		func(ff *flag.Flag) {
+			if ff.Name == name {
+				f = ff
+			}
+		})
+	return
 }
 
 func (context *Context) checkRequiredFlags(flags []Flag) requiredFlagsErr {
