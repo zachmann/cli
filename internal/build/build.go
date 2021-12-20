@@ -13,7 +13,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/zachmann/cli/v2"
+	"github.com/urfave/cli/v2"
 )
 
 var packages = []string{"cli", "altsrc"}
@@ -22,7 +22,7 @@ func main() {
 	app := cli.NewApp()
 
 	app.Name = "builder"
-	app.Usage = "Generates a new zachmann/cli build!"
+	app.Usage = "Generates a new urfave/cli build!"
 
 	app.Commands = cli.Commands{
 		{
@@ -72,9 +72,9 @@ func TestActionFunc(c *cli.Context) error {
 		var packageName string
 
 		if pkg == "cli" {
-			packageName = "github.com/zachmann/cli/v2"
+			packageName = "github.com/urfave/cli/v2"
 		} else {
-			packageName = fmt.Sprintf("github.com/zachmann/cli/v2/%s", pkg)
+			packageName = fmt.Sprintf("github.com/urfave/cli/v2/%s", pkg)
 		}
 
 		coverProfile := fmt.Sprintf("--coverprofile=%s.coverprofile", pkg)

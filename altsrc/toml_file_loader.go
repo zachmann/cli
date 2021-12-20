@@ -5,7 +5,7 @@ import (
 	"reflect"
 
 	"github.com/BurntSushi/toml"
-	"github.com/zachmann/cli/v2"
+	"github.com/urfave/cli/v2"
 )
 
 type tomlMap struct {
