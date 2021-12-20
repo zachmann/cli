@@ -95,20 +95,20 @@ func (f GenericFlag) Apply(set *flag.FlagSet) error {
 // Generic looks up the value of a local GenericFlag, returns
 // nil if not found
 func (c *Context) Generic(name string) interface{} {
-	if fs := c.lookupFlagSet(name); fs != nil {
-		return lookupGeneric(name, fs)
+	for _, ctx := range c.Lineage() {
+		if fs := ctx.lookupFlagSet(name); fs != nil {
+			if f := flagSetLookupWithValueSet(fs, name); f != nil {
+				return lookupGeneric(f)
+			}
+		}
 	}
 	return nil
 }
 
-func lookupGeneric(name string, set *flag.FlagSet) interface{} {
-	f := set.Lookup(name)
-	if f != nil {
-		parsed, err := f.Value, error(nil)
-		if err != nil {
-			return nil
-		}
-		return parsed
+func lookupGeneric(f *flag.Flag) interface{} {
+	parsed, err := f.Value, error(nil)
+	if err != nil {
+		return nil
 	}
-	return nil
+	return parsed
 }

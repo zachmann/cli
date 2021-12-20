@@ -154,17 +154,17 @@ func (f *TimestampFlag) Apply(set *flag.FlagSet) error {
 
 // Timestamp gets the timestamp from a flag name
 func (c *Context) Timestamp(name string) *time.Time {
-	if fs := c.lookupFlagSet(name); fs != nil {
-		return lookupTimestamp(name, fs)
+	for _, ctx := range c.Lineage() {
+		if fs := ctx.lookupFlagSet(name); fs != nil {
+			if f := flagSetLookupWithValueSet(fs, name); f != nil {
+				return lookupTimestamp(f)
+			}
+		}
 	}
 	return nil
 }
 
 // Fetches the timestamp value from the local timestampWrap
-func lookupTimestamp(name string, set *flag.FlagSet) *time.Time {
-	f := set.Lookup(name)
-	if f != nil {
-		return (f.Value.(*Timestamp)).Value()
-	}
-	return nil
+func lookupTimestamp(f *flag.Flag) *time.Time {
+	return (f.Value.(*Timestamp)).Value()
 }

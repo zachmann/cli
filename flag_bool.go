@@ -20,7 +20,7 @@ type BoolFlag struct {
 	Destination      *bool
 	HasBeenSet       bool
 	HideDefaultValue bool
-	Placeholder 	 string
+	Placeholder      string
 }
 
 // IsSet returns whether or not the flag has been set through env or file
@@ -94,20 +94,20 @@ func (f *BoolFlag) Apply(set *flag.FlagSet) error {
 // Bool looks up the value of a local BoolFlag, returns
 // false if not found
 func (c *Context) Bool(name string) bool {
-	if fs := c.lookupFlagSet(name); fs != nil {
-		return lookupBool(name, fs)
+	for _, ctx := range c.Lineage() {
+		if fs := ctx.lookupFlagSet(name); fs != nil {
+			if f := flagSetLookupWithValueSet(fs, name); f != nil {
+				return lookupBool(f)
+			}
+		}
 	}
 	return false
 }
 
-func lookupBool(name string, set *flag.FlagSet) bool {
-	f := set.Lookup(name)
-	if f != nil {
-		parsed, err := strconv.ParseBool(f.Value.String())
-		if err != nil {
-			return false
-		}
-		return parsed
+func lookupBool(f *flag.Flag) bool {
+	parsed, err := strconv.ParseBool(f.Value.String())
+	if err != nil {
+		return false
 	}
-	return false
+	return parsed
 }

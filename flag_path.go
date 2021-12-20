@@ -81,21 +81,20 @@ func (f *PathFlag) Apply(set *flag.FlagSet) error {
 // Path looks up the value of a local PathFlag, returns
 // "" if not found
 func (c *Context) Path(name string) string {
-	if fs := c.lookupFlagSet(name); fs != nil {
-		return lookupPath(name, fs)
+	for _, ctx := range c.Lineage() {
+		if fs := ctx.lookupFlagSet(name); fs != nil {
+			if f := flagSetLookupWithValueSet(fs, name); f != nil {
+				return lookupPath(f)
+			}
+		}
 	}
-
 	return ""
 }
 
-func lookupPath(name string, set *flag.FlagSet) string {
-	f := set.Lookup(name)
-	if f != nil {
-		parsed, err := f.Value.String(), error(nil)
-		if err != nil {
-			return ""
-		}
-		return parsed
+func lookupPath(f *flag.Flag) string {
+	parsed, err := f.Value.String(), error(nil)
+	if err != nil {
+		return ""
 	}
-	return ""
+	return parsed
 }

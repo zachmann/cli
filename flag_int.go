@@ -93,20 +93,20 @@ func (f *IntFlag) Apply(set *flag.FlagSet) error {
 // Int looks up the value of a local IntFlag, returns
 // 0 if not found
 func (c *Context) Int(name string) int {
-	if fs := c.lookupFlagSet(name); fs != nil {
-		return lookupInt(name, fs)
+	for _, ctx := range c.Lineage() {
+		if fs := ctx.lookupFlagSet(name); fs != nil {
+			if f := flagSetLookupWithValueSet(fs, name); f != nil {
+				return lookupInt(f)
+			}
+		}
 	}
 	return 0
 }
 
-func lookupInt(name string, set *flag.FlagSet) int {
-	f := set.Lookup(name)
-	if f != nil {
-		parsed, err := strconv.ParseInt(f.Value.String(), 0, 64)
-		if err != nil {
-			return 0
-		}
-		return int(parsed)
+func lookupInt(f *flag.Flag) int {
+	parsed, err := strconv.ParseInt(f.Value.String(), 0, 64)
+	if err != nil {
+		return 0
 	}
-	return 0
+	return int(parsed)
 }
